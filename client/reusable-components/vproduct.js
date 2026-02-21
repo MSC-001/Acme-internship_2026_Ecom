@@ -22,7 +22,7 @@ function getUserRole() {
 async function loadProducts() {
     const token = sessionStorage.getItem('token');
     const productsList = document.getElementById('productsList');
-    
+
     // If there's no productsList on this page (e.g. cart page includes vproduct.js), just exit silently
     if (!productsList) return;
 
@@ -51,7 +51,7 @@ async function loadProducts() {
         if (!result.error && result.data) {
             if (result.data.length === 0) {
                 productsList.innerHTML = userRole === 'vendor'
-                    ? '<p class="no-products">No products found. Start adding products!</p>'
+                    ? `<p class="no-products">No products found...<br>Start adding products!</p>`
                     : '<p class="no-products">No products available at the moment.</p>';
                 return;
             }
@@ -311,23 +311,23 @@ function flyToCart(pid) {
 
     if (!sourceImg || !cartIcon) return;
 
-    const srcRect  = sourceImg.getBoundingClientRect();
+    const srcRect = sourceImg.getBoundingClientRect();
     const destRect = cartIcon.getBoundingClientRect();
 
     // create flying clone
     const fly = document.createElement('img');
     fly.src = sourceImg.src;
     fly.className = 'fly-img';
-    fly.style.left = srcRect.left + srcRect.width  / 2 - 30 + 'px';
-    fly.style.top  = srcRect.top  + srcRect.height / 2 - 30 + 'px';
+    fly.style.left = srcRect.left + srcRect.width / 2 - 30 + 'px';
+    fly.style.top = srcRect.top + srcRect.height / 2 - 30 + 'px';
     document.body.appendChild(fly);
 
     // next frame: animate to cart icon position
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             fly.classList.add('fly-end');
-            fly.style.left = destRect.left + destRect.width  / 2 - 8 + 'px';
-            fly.style.top  = destRect.top  + destRect.height / 2 - 8 + 'px';
+            fly.style.left = destRect.left + destRect.width / 2 - 8 + 'px';
+            fly.style.top = destRect.top + destRect.height / 2 - 8 + 'px';
         });
     });
 

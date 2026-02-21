@@ -98,7 +98,7 @@ async function loadProducts() {
                                         ${product.stock > 0 ? `
                                             <div class="qty-container" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                                 <label for="qty-${product.pid}" style="font-size: 0.9em; color: #555; font-weight: bold;">Qty:</label>
-                                                <input type="number" id="qty-${product.pid}" value="1" min="1" max="${product.stock}" style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
+                                                <input type="number" id="qty-${product.pid}" value="1" min="1" max="${product.stock}" style="width: 60px; padding: 5px; border-radius: 4px; text-align: center;">
                                             </div>
                                             <button class="btn-cart" onclick="addToCart(${product.pid}, '${product.pname.replace(/'/g, "\'")}', ${product.stock})">
                                                 <i class="fa-solid fa-cart-plus"></i> Add to Cart
@@ -282,6 +282,8 @@ async function addToCart(pid, pname, maxStock) {
         const result = await response.json();
 
         if (!result.error) {
+            qtyInput.value = 1;
+            qtyInput.blur();
             alert(`Successfully added ${qty} x "${pname}" to cart!`);
         } else {
             alert(result.message);

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders</title>
+    <link rel="stylesheet" href="../reusable-components/home.css">
+    <script src="../reusable-components/navbar.js"></script>
+    <script src="https://kit.fontawesome.com/2bfb11f7cc.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!-- Header injected by navbar.js -->
+    <div class="products-main">
+        <h2 id="pageTitle">Manage Orders</h2>
+        <div id="orders-container">
+            <div class="loading">Loading your orders...</div>
+        </div>
+    </div>
+</body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const ordersContainer = document.getElementById('orders-container');
+        const token = sessionStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '/auth/login.html';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/orders/vendor', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok && !data.error) {
+                renderOrders(data.orders);
+            } else {
+                ordersContainer.innerHTML = `<div class="empty-state">${data.message || 'Failed to fetch orders'}</div>`;
+            }
+        } catch (err) {
+            console.error('Error fetching orders:', err);
+            ordersContainer.innerHTML = '<div class="empty-state">An error occurred while loading orders.</div>';
+        }
+
+        function renderOrders(orders) {
+            if (!orders || orders.length === 0) {
+                ordersContainer.innerHTML = '<div class="empty-state">No orders have been placed yet.</div>';
+                return;
+            }
+
+            ordersContainer.innerHTML = '';
+
+            orders.forEach(order => {
+                const date = new Date(order.created_at).toLocaleDateString();
+
+                let formattedExpectedDate = '';
+                if (order.expected_delivery_date) {
+                    const edd = new Date(order.expected_delivery_date);
+                    formattedExpectedDate = edd.toISOString().split('T')[0];
+                }
+
+                const card = document.createElement('div');
+                card.className = 'order-card';
+
+                card.innerHTML = `
+                <div class="order-header">
+                    <span class="order-id">Order #${order.order_id}</span>
+                    <span class="order-date">Placed: ${date}</span>
+                </div>
+                <div class="order-body">
+                    <img src="${order.product_image ? '/uploads/' + order.product_image : '/assets/img/defaut_avatar.png'}" alt="${order.product_name}" class="product-image" onerror="this.src='/assets/img/defaut_avatar.png'">
+
+                    <div class="order-details">
+                        <div class="product-name">${order.product_name}</div>
+                        <div class="customer-info">
+                            <div><strong>Customer:</strong> ${order.customer_name}</div>
+                            <div><strong>Address:</strong> ${order.delivery_address || 'Not Provided'}</div>
+                            <div><strong>Quantity:</strong> ${order.quantity}</div>
+                            <div><strong>Total Price:</strong> ₹${(order.price * order.quantity).toFixed(2)}</div>
+                        </div>
+                    </div>
+
+                    <div class="order-actions">
+                        <div class="action-group">
+                            <label for="status-${order.item_id}">Status</label>
+                            <select id="status-${order.item_id}">
+                                <option value="Pending"   ${order.status === 'Pending'   ? 'selected' : ''}>Pending</option>
+                                <option value="Shipped"   ${order.status === 'Shipped'   ? 'selected' : ''}>Shipped</option>
+                                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </div>
+
+                        <div class="action-group">
+                            <label for="date-${order.item_id}">Expected Delivery</label>
+                            <input type="date" id="date-${order.item_id}" value="${formattedExpectedDate}">
+                        </div>
+
+                        <button class="save-btn" onclick="updateOrder(event, ${order.item_id})">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            `;
+
+                ordersContainer.appendChild(card);
+            });
+        }
+    });
+
+    async function updateOrder(event, itemId) {
+        const statusSelect = document.getElementById(`status-${itemId}`);
+        const dateInput = document.getElementById(`date-${itemId}`);
+        const saveBtn = event.target.closest('button');
+
+        const status = statusSelect.value;
+        const expected_delivery_date = dateInput.value;
+        const token = sessionStorage.getItem('token');
+
+        const originalHTML = saveBtn.innerHTML;
+        saveBtn.innerHTML = 'Saving...';
+        saveBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/orders/vendor/${itemId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status, expected_delivery_date })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && !data.error) {
+                saveBtn.style.backgroundImage = 'linear-gradient(45deg, #218838, #1e7e34)';
+                saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+                setTimeout(() => {
+                    saveBtn.style.backgroundImage = '';
+                    saveBtn.innerHTML = originalHTML;
+                    saveBtn.disabled = false;
+                }, 2000);
+            } else {
+                alert(data.message || 'Failed to update order');
+                saveBtn.innerHTML = originalHTML;
+                saveBtn.disabled = false;
+            }
+        } catch (err) {
+            console.error('Error updating order:', err);
+            alert('An error occurred while updating the order.');
+            saveBtn.innerHTML = originalHTML;
+            saveBtn.disabled = false;
+        }
+    }
+
+</script>
+
+</html>

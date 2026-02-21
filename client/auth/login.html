@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="./css/login.css">
+    <script src="https://kit.fontawesome.com/2bfb11f7cc.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <form onsubmit="validate(); return false;">
+            <div class="form-container">
+                <div class="welcome-text">
+                    <h2>Welcome back!</h2>
+                    <p>login and explore</p>
+                </div>
+                <div class="username-container">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" autocomplete="username" placeholder="Username" required>
+                </div>
+
+                <div class="password-container">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" autocomplete="current-password" id="upass" placeholder="Password" required>
+                    <i class="fas fa-eye-slash toggle-password" onclick="togglePassword('upass')"></i>
+                </div>
+
+                <div class="lbtn">
+                    <button>Login</button>
+                </div>
+
+                <div class="pa">
+                    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        unameObject = document.getElementById("username");
+        upassObject = document.getElementById("upass");;
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.nextElementSibling;
+            const type = field.type === "password" ? "text" : "password";
+            field.type = type;
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+        }
+
+        async function validate() {
+            const username = unameObject.value;
+            const password = upassObject.value;
+
+            if (!username || !password) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const payload = { username: username, password: password };
+
+            const rawResponse = await fetch("http://localhost:3000/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const apiResponse = await rawResponse.json();
+            alert(apiResponse.message);
+
+            if (!apiResponse.error) {
+                unameObject.value = "";
+                upassObject.value = "";
+                sessionStorage.setItem("token", apiResponse.token);
+                if (apiResponse.payload.role == "customer") {
+                    window.location.href = "/customer/home.html";
+                } else if (apiResponse.payload.role == "vendor") {
+                    window.location.href = "/vendor/home.html";
+                } else {
+                    alert("Unknown user role.");
+                    return;
+                }
+            }
+        }
+    </script>
+
+</html>

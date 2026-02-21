@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Products</title>
+    <script src="../reusable-components/navbar.js"></script>
+    <script src="../reusable-components/vproduct.js"></script>
+    <link rel="stylesheet" href="../reusable-components/home.css">
+    <script src="https://kit.fontawesome.com/2bfb11f7cc.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!-- Products Container -->
+    <div class="products-main">
+        <h2 id="pageTitle">Products</h2>
+        <div id="productsList" class="products-grid">
+            <p class="loading">Loading products...</p>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal (Only for Vendors) -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Product</h2>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editProductId">
+                <input type="text" id="editPname" placeholder="Product Name" required>
+                <textarea id="editPdes" placeholder="Description" rows="4" required></textarea>
+                <input type="number" id="editPrice" placeholder="Price" step="0.01" required>
+                <input type="number" id="editStock" placeholder="Stock" required>
+                <input type="file" id="editPimage" placeholder="select a image" accept="image/*">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-save" onclick="saveEdit()">
+                    <i class="fa-solid fa-floppy-disk"></i> Save
+                </button>
+                <button class="btn-cancel" onclick="closeEditModal()">
+                    <i class="fa-solid fa-xmark"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>

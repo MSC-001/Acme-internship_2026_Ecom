@@ -1,0 +1,183 @@
+.profile-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 1rem 3rem;
+}
+
+.profile-card {
+    width: 100%;
+    max-width: 560px;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.22), rgba(227, 227, 227, 0.14));
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    box-shadow: -20px 10px 30px rgba(0, 0, 0, 0.35);
+    padding: 2.5rem 2.5rem 2rem;
+}
+
+/* ---- Header ---- */
+.profile-card__title {
+    color: white;
+    text-shadow: -4px 2px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    font-size: 1.75rem;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Avatar block ---- */
+.profile-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.75rem;
+    gap: 1rem;
+}
+
+.profile-avatar__frame {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #007bff;
+    box-shadow: -8px 8px 15px rgba(0, 0, 0, 0.35);
+    flex-shrink: 0;
+}
+
+.profile-avatar__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.profile-avatar__label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.1rem;
+    background-image: linear-gradient(45deg, #007bff, #ad29c7);
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    box-shadow: -4px 2px 4px rgba(0, 0, 0, 0.3);
+    transition: background-image 0.3s, box-shadow 0.3s;
+}
+
+.profile-avatar__label:hover {
+    background-image: linear-gradient(45deg, #0056b3, #7b1fa2);
+    box-shadow: -6px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.profile-avatar__input {
+    display: none;
+}
+
+/* ---- Form ---- */
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.profile-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.profile-form__label {
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+}
+
+.profile-form__label .required {
+    color: #ff6b9d;
+    margin-left: 2px;
+}
+
+.profile-form__input,
+.profile-form__textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    font-family: inherit;
+    box-shadow: -4px 2px 4px rgba(0, 0, 0, 0.2);
+    caret-color: #d400ff;
+    outline: none;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.profile-form__input::placeholder,
+.profile-form__textarea::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.profile-form__input:focus,
+.profile-form__textarea:focus {
+    border-color: #007bff;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Read-only email field */
+.profile-form__input--readonly {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+}
+
+.profile-form__textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ---- Submit button ---- */
+.profile-form__submit {
+    width: 100%;
+    padding: 0.9rem;
+    margin-top: 0.5rem;
+    background-image: linear-gradient(45deg, #4b6cff 50%, #e3c7ff);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: -4px 2px 4px rgba(0, 0, 0, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    transition: background-image 0.3s, box-shadow 0.3s;
+}
+
+.profile-form__submit:hover {
+    background-image: linear-gradient(45deg, #133eff 50%, #b367ff);
+    box-shadow: -6px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    .profile-card {
+        padding: 2rem 1.25rem 1.5rem;
+    }
+
+    .profile-avatar__frame {
+        width: 110px;
+        height: 110px;
+    }
+}

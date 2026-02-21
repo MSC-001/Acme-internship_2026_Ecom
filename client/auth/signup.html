@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="./css/signup.css">
+    <script src="https://kit.fontawesome.com/2bfb11f7cc.js" crossorigin="anonymous"></script>   
+</head>
+
+<body>
+    <div class="container">
+        <form onsubmit="validate(); return false;">
+            <div class="form-container">
+                <div class="welcome-text">        
+                    <h2>Create your account!</h2>
+                    <p>Expolore, Buy and Sell</p>
+                </div>
+                <div class="username-container">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" autocomplete="username" placeholder="username" required title="username is required">
+                </div>
+
+                <div class="email-container">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="uemail" autocomplete="email" placeholder="email" required>
+                </div>
+
+
+                <div class="password-container">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="upass" autocomplete="new-password" placeholder="password" minlength="8" maxlength="98" required>
+                    <i class="fas fa-eye-slash toggle-password" onclick="togglePassword('upass')"></i>
+                </div>
+                <div class="password-container">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="cPass" autocomplete="new-password" placeholder="confirm password" required>
+                    <i class="fas fa-eye-slash toggle-password" onclick="togglePassword('cPass')"></i>
+                </div>
+                <div class="role-container">
+                    <label for="urole">Select Role:</label>
+                    <select id="urole" required>
+                        <option value="" disabled selected>click here</option>
+                        <option value="customer">customer</option>
+                        <option value="vendor">vendor</option>
+                    </select>
+                </div>
+                <div class="sbtn">
+                    <button>SignUp</button>
+                </div>  
+                <div class="pa">
+                    <p>Already have an account? <a href="login.html">Login</a></p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        unameObject = document.getElementById("username");
+        uemailObject = document.getElementById("uemail");
+        upassObject = document.getElementById("upass");
+        upass2Object = document.getElementById("cPass");
+        uroleObject = document.getElementById("urole");
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.nextElementSibling;
+            const type = field.type === "password" ? "text" : "password";
+            field.type = type;
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+        }
+
+        async function validate() {
+            const username = unameObject.value;
+            const email = uemailObject.value;
+            const password = upassObject.value;
+            const cPassword = upass2Object.value;
+            const role = uroleObject.value;
+
+            if (password != cPassword) {
+                alert("Passwords do not match.");
+                return;
+            }
+
+            const payload = {username:username, email:email, password:password, cPassword:cPassword, role:role};
+
+            const rawResponse = await fetch("http://localhost:3000/api/auth/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const apiResponse = await rawResponse.json();
+            alert(apiResponse.message);
+
+            if (!apiResponse.error) {
+                unameObject.value = "";
+                uemailObject.value = "";
+                upassObject.value = "";
+                upass2Object.value = "";
+                uroleObject.selectedIndex = 0;
+                window.location.href = "/auth/login.html";
+            }
+
+        }
+    </script>
+</html>

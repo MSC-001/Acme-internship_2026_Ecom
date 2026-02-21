@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Orders</title>
+    <link rel="stylesheet" href="../reusable-components/home.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="../reusable-components/navbar.js"></script>
+    <script src="https://kit.fontawesome.com/2bfb11f7cc.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!-- Header injected by navbar.js -->
+    <div class="products-main">
+        <h2 id="pageTitle">Track Your Orders</h2>
+        <div id="orders-container">
+            <div class="loading">Loading your orders...</div>
+        </div>
+    </div>
+</body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const ordersContainer = document.getElementById('orders-container');
+        const token = sessionStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '/auth/login.html';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/orders/customer', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok && !data.error) {
+                renderOrders(data.orders);
+            } else {
+                ordersContainer.innerHTML = `<div class="empty-state">${data.message || 'Failed to fetch your orders'}</div>`;
+            }
+        } catch (err) {
+            console.error('Error fetching orders:', err);
+            ordersContainer.innerHTML = '<div class="empty-state">An error occurred while loading your orders.</div>';
+        }
+
+        function renderOrders(orders) {
+            if (!orders || orders.length === 0) {
+                ordersContainer.innerHTML = '<div class="empty-state">You haven\'t placed any orders yet.</div>';
+                return;
+            }
+
+            ordersContainer.innerHTML = '';
+
+            orders.forEach(order => {
+                const date = new Date(order.created_at).toLocaleDateString(undefined, {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+
+                let expectedDateText = 'To be determined';
+                if (order.expected_delivery_date) {
+                    const edd = new Date(order.expected_delivery_date);
+                    expectedDateText = edd.toLocaleDateString(undefined, {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                }
+
+                const statusClass = `status-${order.status.toLowerCase()}`;
+
+                const card = document.createElement('div');
+                card.className = 'order-card';
+
+                card.innerHTML = `
+                <div class="order-header">
+                    <span class="order-id">Order #${order.order_id}</span>
+                    <span class="order-date">Placed on ${date}</span>
+                </div>
+                <div class="order-body">
+                    <img src="${order.product_image ? '/uploads/' + order.product_image : '/assets/img/defaut_avatar.png'}" alt="${order.product_name}" class="product-image" onerror="this.src='/assets/img/defaut_avatar.png'">
+                    
+                    <div class="order-details">
+                        <div class="product-name">${order.product_name}</div>
+                        <div class="order-info">
+                            <div><strong>Sold by:</strong> ${order.vendor_name}</div>
+                            <div><strong>Quantity:</strong> ${order.quantity}</div>
+                            <div><strong>Total Price:</strong> ₹${(order.price * order.quantity).toFixed(2)}</div>
+                            <div class="order-info__address"><strong>Delivery to:</strong><br>${order.delivery_address}</div>
+                        </div>
+                    </div>
+
+                    <div class="order-status-container">
+                        <div class="status-badge ${statusClass}">${order.status}</div>
+                        <div class="expected-date">
+                            <strong>Expected Delivery:</strong><br>${expectedDateText}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                ordersContainer.appendChild(card);
+            });
+        }
+    });
+
+</script>
+
+</html>

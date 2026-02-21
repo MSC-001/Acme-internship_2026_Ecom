@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="stylesheet" href="../reusable-components/home.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="../reusable-components/navbar.js"></script>
+    <script src="https://kit.fontawesome.com/2bfb11f7cc.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!-- Header injected by navbar.js -->
+    <div class="products-main">
+        <h2 id="pageTitle">Shopping Cart</h2>
+
+        <div id="cartItems">
+            <p class="loading">Loading cart...</p>
+        </div>
+
+        <div id="cartSummary" class="cart-summary" style="display: none;">
+            <h3 class="cart-summary__total">Total: ₹<span id="cartTotal">0.00</span></h3>
+            <button onclick="checkout()" class="btn-checkout">
+                <i class="fa-solid fa-credit-card"></i> Proceed to Checkout
+            </button>
+        </div>
+    </div>
+</body>
+
+<script>
+    function getUserRole() {
+        const token = sessionStorage.getItem('token');
+        if (!token) return null;
+        try {
+            return JSON.parse(atob(token.split('.')[1])).role;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function loadCart() {
+        if (getUserRole() !== 'customer') {
+            window.location.href = '/auth/login.html';
+            return;
+        }
+
+        const token = sessionStorage.getItem('token');
+        const cartItemsDiv = document.getElementById('cartItems');
+        const cartSummaryDiv = document.getElementById('cartSummary');
+        const cartTotalSpan = document.getElementById('cartTotal');
+
+        try {
+            const response = await fetch('http://localhost:3000/api/cart/view', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const result = await response.json();
+
+            if (!result.error && result.data) {
+                if (result.data.length === 0) {
+                    cartItemsDiv.innerHTML = '<p class="cart-empty">Your cart is empty.<br><br><a href="/customer/home.html">Browse products here</a></p>';
+                    cartSummaryDiv.style.display = 'none';
+                    return;
+                }
+
+                let total = 0;
+                let html = '';
+
+                result.data.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+
+                    html += `
+                    <div class="cart-item" id="cart-item-${item.cart_id}">
+                        <img src="http://localhost:3000/uploads/${item.pimage}" alt="${item.pname}" class="cart-item__img"
+                            onerror="this.src='/assets/img/defaut_avatar.png'">
+                        <div class="item-details">
+                            <h3>${item.pname}</h3>
+                            <p>Sold by: ${item.vendor_name || 'Unknown'}</p>
+                            <p class="item-price">Price: ₹${parseFloat(item.price).toFixed(2)}</p>
+                            <p class="item-stock">Stock available: ${item.stock}</p>
+                        </div>
+                        <div class="item-actions">
+                            <label>Qty:</label>
+                            <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.stock}"
+                                onchange="updateCartItem(${item.cart_id}, this.value, ${item.stock})">
+                            <span class="item-total">₹${itemTotal.toFixed(2)}</span>
+                            <button class="btn-remove" onclick="removeCartItem(${item.cart_id})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                });
+
+                cartItemsDiv.innerHTML = html;
+                cartTotalSpan.textContent = total.toFixed(2);
+                cartSummaryDiv.style.display = 'flex';
+            } else {
+                cartItemsDiv.innerHTML = `<p class="cart-empty">${result.message || 'Error loading cart'}</p>`;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            cartItemsDiv.innerHTML = '<p class="cart-empty">Error loading cart. Is the server running?</p>';
+        }
+    }
+
+    async function updateCartItem(cartId, newQty, maxStock) {
+        let qty = parseInt(newQty);
+        if (isNaN(qty) || qty < 1) {
+            alert('Invalid quantity');
+            loadCart();
+            return;
+        }
+        if (qty > maxStock) {
+            alert(`Only ${maxStock} items available in stock.`);
+            loadCart();
+            return;
+        }
+
+        const token = sessionStorage.getItem('token');
+        try {
+            const response = await fetch(`http://localhost:3000/api/cart/update/${cartId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ qty: qty })
+            });
+            const result = await response.json();
+            if (result.error) alert(result.message);
+            loadCart();
+        } catch (error) {
+            console.error('Error updating cart:', error);
+        }
+    }
+
+    async function removeCartItem(cartId) {
+        if (!confirm('Remove this item from your cart?')) return;
+
+        const token = sessionStorage.getItem('token');
+        try {
+            const response = await fetch(`http://localhost:3000/api/cart/remove/${cartId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const result = await response.json();
+            if (!result.error) {
+                loadCart();
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Error removing item:', error);
+        }
+    }
+
+    async function checkout() {
+        if (getUserRole() !== 'customer') {
+            alert('Access denied');
+            return;
+        }
+
+        const token = sessionStorage.getItem('token');
+        let deliveryAddress = null;
+
+        try {
+            const profileRes = await fetch('http://localhost:3000/api/profile/view', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const profileData = await profileRes.json();
+
+            if (!profileData.error && profileData.data && profileData.data.address) {
+                deliveryAddress = profileData.data.address;
+            }
+        } catch (e) {
+            console.error("Error checking profile address", e);
+        }
+
+        if (!deliveryAddress || deliveryAddress.trim() === "") {
+            alert("You must set a delivery address in your profile before checking out. Please click 'Edit Profile' in the top right menu.");
+            window.location.href = '/reusable-components/edit-profile.html';
+            return;
+        }
+
+        if (!confirm(`Checkout and deliver to:\n\n${deliveryAddress}\n\nProceed?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:3000/api/orders/checkout', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    delivery_address: deliveryAddress,
+                    payment_method: 'Cash on Delivery'
+                })
+            });
+
+            const result = await response.json();
+
+            if (!result.error) {
+                alert(`${result.message}\n\nYour Order ID is: #${result.orderId}\nPayment Method: Cash on Delivery`);
+                window.location.href = '/customer/torders.html';
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Checkout error:', error);
+            alert('An error occurred during checkout. Please try again.');
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadCart);
+
+</script>
+
+</html>

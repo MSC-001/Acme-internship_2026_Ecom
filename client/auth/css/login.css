@@ -1,0 +1,96 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 20px;
+    border: 1px solid #007bff;
+    border-radius: 1rem;
+}
+
+.welcome-text {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.username-container, 
+.password-container {
+    width: 100%;
+    display: flex;            
+    align-items: center;                  
+    border: 1px solid #ccc;   
+    border-radius: 5px;       
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.username-container input, 
+.password-container input {
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 10px;
+}
+
+.username-container input:focus, 
+.password-container input:focus {
+    caret-color: #007bff;
+    animation: blink-cursor 1s step-end infinite;
+}
+
+@keyframes blink-cursor {
+    0%, 50% {
+        caret-color: #007bff;
+    }
+    60%, 100% {
+        caret-color: #d400ff;
+    }
+}
+
+
+.username-container:focus-within, 
+.password-container:focus-within {
+    border-color: #007bff;
+}
+
+.toggle-password {
+    cursor: pointer;
+    color: #666;
+    font-size: 18px;
+    user-select: none;
+}
+
+.lbtn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.lbtn button{
+    width: 100%;
+    padding: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pa a{
+    text-decoration: none;
+    color: #d400ff;
+}

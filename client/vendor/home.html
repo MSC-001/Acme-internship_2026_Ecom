@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Home</title>
+    <link rel="stylesheet" href="../reusable-components/home.css">
+    <script src="https://kit.fontawesome.com/2bfb11f7cc.js" crossorigin="anonymous"></script>
+    <script src="../reusable-components/navbar.js"></script>
+    <script src="../reusable-components/vproduct.js"></script>
+</head>
+
+<body>
+    <form class="uform" onsubmit="uploadApi(); return false;" method="post" enctype="multipart/form-data">
+        <div class="upload-container">
+            <h2>Upload Your Product</h2>
+            <input type="text" id="pname" placeholder="product name" required>
+            <textarea id="pdes" placeholder="product description..." style="resize: none" required></textarea>
+            <input type="text" id="price" placeholder="price ₹" required>
+            <input type="number" id="stock" placeholder="stock Quantity" required>
+            <div class="pimage-container">
+                <div class="pimage-dragdrop" id="dragDrop">
+                    <p>Drag & drop Product images here / <span id="bbtn"> browse</span></p>
+                    <input type="file" id="pimage" accept="image/*" multiple style="display: none" required>
+                </div>
+                <div id="flist"></div>
+            </div>
+            <button class="sbtn" type="submit">Add product</button>
+        </div>
+    </form>
+</body>
+
+<script>
+    let subMenu = document.getElementById("subMenu");
+
+    function profile() {
+        subMenu.classList.toggle("profile");
+    }
+</script>
+
+<script>
+    //dragDrop setup
+    const dragDrop = document.getElementById("dragDrop");
+    const bbtn = document.getElementById("bbtn");
+    const pimage = document.getElementById("pimage");
+    const flist = document.getElementById("flist");
+
+
+    bbtn.addEventListener('click', () => {
+        pimage.click();
+    });
+    dragDrop.addEventListener('click', (e) => {
+        if (e.target !== bbtn) {
+            pimage.click();
+        }
+    });
+    dragDrop.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dragDrop.classList.add('drag-over');
+    });
+
+    dragDrop.addEventListener('dragleave', () => {
+        dragDrop.classList.remove('drag-over');
+    });
+    dragDrop.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragDrop.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            pimage.files = files;
+            displayFile(files[0]);
+        }
+    });
+
+    //file input change
+    pimage.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            displayFile(e.target.files[0]);
+        }
+    });
+
+    //fe validatation
+    function displayFile(file) {
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            alert('Please select a valid image file');
+            pimage.value = '';
+            flist.innerHTML = '';
+            return;
+        }
+        // Validate file size (5MB)
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('File size must be less than 5MB');
+            pimage.value = '';
+            flist.innerHTML = '';
+            return;
+        }
+
+        // Display file info
+        flist.innerHTML = `
+            <div class="file-item">
+                <i class="fa-solid fa-camera"></i>
+                <div class="file-details">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${(file.size / 1024).toFixed(2)} KB</div>
+                </div>
+                <button type="button" class="remove-btn" onclick="removeFile()"><i class="fa-solid fa-circle-xmark"></i></button>
+            </div>
+        `;
+    }
+
+    //remove's file
+    function removeFile() {
+        pimage.value = '';
+        flist.innerHTML = '';
+    }
+
+    // Price formatting logic
+    const priceInput = document.getElementById("price");
+    priceInput.addEventListener('blur', (e) => {
+        let value = e.target.value;
+        // Remove existing currency symbols and commas to get raw number
+        value = value.replace(/[^0-9.]/g, '');
+        if (value) {
+            const formatter = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2,
+            });
+            e.target.value = formatter.format(value);
+        }
+    });
+    priceInput.addEventListener('focus', (e) => {
+        let value = e.target.value;
+        // Strip formatting when user wants to edit
+        if (value) {
+            value = value.replace(/[^0-9.]/g, '');
+            e.target.value = value;
+        }
+    });
+
+    async function uploadApi() {
+        const token = sessionStorage.getItem("token");
+        console.log("Token:", token);
+
+        if (!token) {
+            alert("Not logged in!");
+            return;
+        }
+
+        const pname = document.getElementById("pname").value;
+        const pdes = document.getElementById("pdes").value;
+
+        // Get raw price by removing currency formatting
+        let price = document.getElementById("price").value;
+        price = price.replace(/[^0-9.]/g, ''); // Remove ₹ and commas
+
+        const stock = document.getElementById("stock").value;
+        const pimagefile = document.getElementById("pimage").files[0];
+
+        // Validate file exists
+        if (!pimagefile) {
+            alert("Please select an image!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('pname', pname);
+        formData.append('pdes', pdes);
+        formData.append('price', price);
+        formData.append('stock', stock);
+        formData.append('pimage', pimagefile); // Add the actual file
+
+        const rawResponse = await fetch("http://localhost:3000/api/products/add", {
+            method: "POST",
+            body: formData, //sends formdata directly
+            headers: {
+                Authorization: `Bearer ${sessionStorage.getItem("token")}`
+            }
+        });
+
+        const apiResponse = await rawResponse.json();
+        alert(apiResponse.message);
+
+        if (!apiResponse.error) {
+            alert("Product uploaded successfully!");
+            //clear
+            document.getElementById("pname").value = "";
+            document.getElementById("pdes").value = "";
+            document.getElementById("price").value = "";
+            document.getElementById("stock").value = "";
+            document.getElementById("pimage").value = "";
+            flist.innerHTML = "";
+        } else {
+            console.error("Error uploading product:", apiResponse.error);
+            alert("An error occurred while uploading the product. Please try again.");
+        }
+    }
+
+</script>
+
+</html>

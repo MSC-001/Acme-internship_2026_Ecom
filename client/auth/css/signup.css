@@ -1,7 +1,8 @@
-
-*{
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
@@ -10,105 +11,184 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    background-attachment: fixed;
+    background-image:
+        radial-gradient(ellipse at 110% 0%, rgb(0, 123, 255) -10%, transparent 30%),
+        radial-gradient(ellipse at 10% 50%, rgb(235, 135, 255) -30%, transparent 50%);
 }
 
-.form-container{
-    box-sizing: border-box;
+/* ---- Card ---- */
+.form-container {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
     gap: 1rem;
-    border: 1px solid #d400ff;
+    padding: 2.5rem 2rem;
+    width: 360px;
+    background: white;
     border-radius: 1rem;
+    border: 2px solid #d400ff;
+    box-shadow: -20px 10px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* ---- Heading ---- */
 .welcome-text {
+    color: black;
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
-.username-container, 
-.email-container, 
+.welcome-text h2 {
+    color: black;
+    font-size: 1.6rem;
+    margin-bottom: 0.25rem;
+}
+
+/* ---- Input containers ---- */
+.username-container,
+.email-container,
 .password-container {
     width: 100%;
-    display: flex;            
-    align-items: left;      
-    padding: 5px;            
-    border: 1px solid #ccc;   
-    border-radius: 5px;       
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     box-sizing: border-box;
+    transition: border-color 0.3s;
 }
 
-.username-container input, 
-.email-container input, 
-.password-container input{
+.username-container i,
+.email-container i,
+.password-container i {
+    color: #555;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.username-container input,
+.email-container input,
+.password-container input {
     border: none;
     outline: none;
-    padding: 0 10px;
+    background: transparent;
+    font-size: 0.95rem;
+    font-family: inherit;
+    width: 100%;
 }
 
-.username-container input:focus, 
-.email-container input:focus, 
+.username-container input:-webkit-autofill,
+.email-container input:-webkit-autofill,
+.password-container input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.username-container:focus-within,
+.email-container:focus-within,
+.password-container:focus-within {
+    border-color: #d400ff;
+}
+
+.username-container input:focus,
+.email-container input:focus,
 .password-container input:focus {
     caret-color: #d400ff;
     animation: blink-cursor 1s step-end infinite;
 }
 
 @keyframes blink-cursor {
-    0%, 60% {
+
+    0%,
+    60% {
         caret-color: #d400ff;
     }
-    70%, 100% {
+
+    70%,
+    100% {
         caret-color: #007bff;
     }
 }
 
-.username-container:focus-within, .email-container:focus-within, .password-container:focus-within, .role-container select:focus-within {
-    border-color: #d400ff;
-}
-
-.role-container{
-    width: 100%;
-    display: flex;            
-    align-items: left;   
-    justify-content: space-between;   
-    padding: 5px;            
-    box-sizing: border-box;
-}
-
-.role-container select{
-    width: 60%;
-    border-radius: 2.5px;
-    outline: none;
-}
-
+/* ---- Toggle password ---- */
 .toggle-password {
     cursor: pointer;
     color: #666;
-    font-size: 18px;
-    margin-left: 5px;
+    font-size: 1rem;
     user-select: none;
+    flex-shrink: 0;
+    transition: color 0.2s;
 }
 
-.sbtn {
+.toggle-password:hover {
+    color: #333;
+}
+
+/* ---- Role selector ---- */
+.role-container {
     width: 100%;
     display: flex;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
 }
 
-.sbtn button{
+.role-container:focus-within {
+    border-color: #d400ff;
+}
+
+.role-container select {
+    width: 55%;
+    border-radius: 4px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    cursor: pointer;
+    color: #333;
+}
+
+/* ---- Button ---- */
+.sbtn {
     width: 100%;
-    padding: 5px;
-    background-color: #d400ff;
+    margin-top: 0.25rem;
+}
+
+.sbtn button {
+    width: 100%;
+    padding: 0.7rem;
+    border-radius: .5rem;
     color: white;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #d400ff;
+    box-shadow: -4px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.pa a{
+.sbtn button:hover {
+    opacity: 0.8;
+}
+
+/* ---- Link ---- */
+.pa {
+    font-size: 0.88rem;
+    color: #555;
+}
+
+.pa a {
     text-decoration: none;
     color: #007bff;
+    font-weight: bold;
+}
+
+.pa a:hover {
+    text-decoration: underline;
 }

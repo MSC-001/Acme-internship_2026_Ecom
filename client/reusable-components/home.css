@@ -86,9 +86,16 @@ body {
         align-items: center;
 
         h2 {
-            color: #0f67ff;
             margin-right: 2rem;
             cursor: default;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            background: linear-gradient(90deg, #007bff, #0011ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
         }
 
         .pfp {
@@ -781,11 +788,10 @@ body {
     justify-content: center;
     gap: 0.5rem;
     margin-top: 0.25rem;
-    transition: background-image 0.3s, box-shadow 0.3s;
 }
 
 .save-btn:hover {
-    box-shadow: -6px 4px 8px rgba(0, 0, 0, 0.4);
+    opacity: 0.8;
 }
 
 /* ---- Empty / error state ---- */

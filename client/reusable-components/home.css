@@ -803,14 +803,48 @@ body {
     text-shadow: var(--up-shadow);
 }
 
-/* ---- Responsive ---- */
-@media (max-width: 768px) {
-    .order-body {
-        flex-direction: column;
+/* ======================================= */
+/* Fly-to-cart animation                   */
+/* ======================================= */
+
+.fly-img {
+    position: fixed;
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+    pointer-events: none;
+    z-index: 9999;
+    transition: all 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 1;
+}
+
+.fly-img.fly-end {
+    width: 16px;
+    height: 16px;
+    opacity: 0;
+}
+
+@keyframes cart-bounce {
+    0% {
+        transform: scale(1);
     }
 
-    .order-actions {
-        min-width: unset;
-        width: 100%;
+    40% {
+        transform: scale(1.4);
     }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cart-bounce {
+    animation: cart-bounce 0.4s ease;
 }

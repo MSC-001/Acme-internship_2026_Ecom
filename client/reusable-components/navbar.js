@@ -48,7 +48,7 @@ function createHeader(username, role) {
             <ul>
                 <ul><a href="${customerPrefix}home.html">View Products</a></ul>
                 <ul><a href="${customerPrefix}torders.html">Track Order</a></ul>
-                <ul><a href="${customerPrefix}cart.html">Cart <i class="fa-solid fa-cart-shopping"></i></a></ul>
+                <ul><a href="${customerPrefix}cart.html">Cart <i id="nav-cart-icon" class="fa-solid fa-cart-shopping"></i></a></ul>
             </ul>
         `;
     }

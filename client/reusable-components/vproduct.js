@@ -282,6 +282,7 @@ async function addToCart(pid, pname, maxStock) {
         const result = await response.json();
 
         if (!result.error) {
+            flyToCart(pid);
             qtyInput.value = 1;
             qtyInput.blur();
             alert(`Successfully added ${qty} x "${pname}" to cart!`);
@@ -295,6 +296,50 @@ async function addToCart(pid, pname, maxStock) {
 }
 
 window.addEventListener('DOMContentLoaded', loadProducts);
+
+function flyToCart(pid) {
+    const cartIcon = document.getElementById('nav-cart-icon');
+    const productImg = document.querySelector(`#cart-item-${pid} img, .product-card img`);
+
+    // find the correct product card image by pid
+    const allCards = document.querySelectorAll('.product-card');
+    let sourceImg = null;
+    allCards.forEach(card => {
+        const btn = card.querySelector(`[onclick*="addToCart(${pid},"]`);
+        if (btn) sourceImg = card.querySelector('img');
+    });
+
+    if (!sourceImg || !cartIcon) return;
+
+    const srcRect  = sourceImg.getBoundingClientRect();
+    const destRect = cartIcon.getBoundingClientRect();
+
+    // create flying clone
+    const fly = document.createElement('img');
+    fly.src = sourceImg.src;
+    fly.className = 'fly-img';
+    fly.style.left = srcRect.left + srcRect.width  / 2 - 30 + 'px';
+    fly.style.top  = srcRect.top  + srcRect.height / 2 - 30 + 'px';
+    document.body.appendChild(fly);
+
+    // next frame: animate to cart icon position
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            fly.classList.add('fly-end');
+            fly.style.left = destRect.left + destRect.width  / 2 - 8 + 'px';
+            fly.style.top  = destRect.top  + destRect.height / 2 - 8 + 'px';
+        });
+    });
+
+    // bounce cart icon when fly arrives, then remove clone
+    fly.addEventListener('transitionend', () => {
+        fly.remove();
+        cartIcon.classList.add('cart-bounce');
+        cartIcon.addEventListener('animationend', () => {
+            cartIcon.classList.remove('cart-bounce');
+        }, { once: true });
+    }, { once: true });
+}
 
 // Close modal when clicking outside
 window.onclick = function (event) {
